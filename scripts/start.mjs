@@ -24,7 +24,10 @@ if (!target) {
 }
 
 console.log(`Starting production server using ${target}...`);
-const child = spawn('node', [target], { stdio: 'inherit' });
+const child = spawn('node', [target], { 
+  stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'production' }
+});
 
 child.on('close', (code) => {
   process.exit(code);

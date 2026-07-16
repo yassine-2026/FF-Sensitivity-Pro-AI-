@@ -18,7 +18,11 @@ app.post('/api/analyze', async (req, res) => {
       return res.status(500).json({ error: 'GROQ_API_KEY is not configured' });
     }
 
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const groq = new Groq({ 
+      apiKey: process.env.GROQ_API_KEY,
+      maxRetries: 2,
+      timeout: 30000 // 30 seconds
+    });
     
     let deviceSpecsContext = '';
     if (deviceSpec) {
@@ -87,10 +91,21 @@ Respond ONLY with valid JSON. Do not include any markdown formatting like \`\`\`
       throw new Error('No response from Groq');
     }
     
-    const result = JSON.parse(responseContent);
-    res.json(result);
-  } catch (error) {
+    try {
+      const result = JSON.parse(responseContent);
+      res.json(result);
+    } catch (parseError) {
+      console.error('Failed to parse Groq response:', responseContent);
+      res.status(502).json({ error: 'Received invalid JSON from AI provider. Please try again.' });
+    }
+  } catch (error: any) {
     console.error('Error analyzing device:', error);
+    if (error?.status === 429) {
+      return res.status(429).json({ error: 'Rate limit exceeded. Please wait a moment and try again.' });
+    }
+    if (error?.name === 'APITimeoutError') {
+      return res.status(504).json({ error: 'Request to AI provider timed out. Please try again.' });
+    }
     res.status(500).json({ error: 'Failed to analyze device. Please try again later.' });
   }
 });

@@ -91,7 +91,7 @@ export default function App() {
                     className="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 flex items-center gap-2 max-w-2xl mx-auto"
                   >
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    <p className="text-sm">{error === 'GROQ_API_KEY is not configured' ? 'System Error: GROQ_API_KEY is missing. Please configure it in the environment.' : t('error')}</p>
+                    <p className="text-sm">{error}</p>
                   </motion.div>
                 )}
               </motion.div>

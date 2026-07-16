@@ -104,8 +104,8 @@ export default function DeviceForm({ onAnalyze, isLoading }: DeviceFormProps) {
         <div className="space-y-3">
           <label className="block text-sm font-medium text-gray-300">{t('deviceType')}</label>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {['Android', 'iPhone', 'Tablet', 'Laptop/PC'].map((type) => {
-              const valType = type === 'Laptop/PC' ? 'Laptop' : type;
+            {['Android', 'iPhone', 'Tablet', 'Laptop/Desktop'].map((type) => {
+              const valType = type === 'Laptop/Desktop' ? 'Laptop' : type;
               return (
                 <button
                   key={type}
