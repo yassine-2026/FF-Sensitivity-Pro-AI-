@@ -1,19 +1,18 @@
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import Groq from 'groq-sdk';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
 
 app.post('/api/analyze', async (req, res) => {
   try {
-    const { deviceType, deviceName, ram } = req.body;
+    const { deviceType, deviceName, ram, deviceSpec } = req.body;
     
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({ error: 'GROQ_API_KEY is not configured' });
@@ -21,11 +20,27 @@ app.post('/api/analyze', async (req, res) => {
 
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     
+    let deviceSpecsContext = '';
+    if (deviceSpec) {
+      deviceSpecsContext = `
+The system has identified exact hardware specifications for this device from our database:
+- Processor: ${deviceSpec.processor} (${deviceSpec.cpu_cores} cores, ${deviceSpec.cpu_frequency})
+- GPU: ${deviceSpec.gpu}
+- Display: ${deviceSpec.display_size} inches, ${deviceSpec.resolution}
+- Refresh Rate: ${deviceSpec.refresh_rate}Hz
+- Touch Sampling Rate: ${deviceSpec.touch_sampling_rate}Hz
+- Gaming Rating: ${deviceSpec.gaming_rating}
+- Performance Score: ${deviceSpec.performance_score}/100
+
+Base your sensitivity and performance recommendations primarily on these verified specs.`;
+    }
+
     const prompt = `Act as an expert mobile gaming performance analyst for the game Free Fire.
 A user has the following device:
 Device Type: ${deviceType}
 Device Name: ${deviceName}
 RAM: ${ram}GB
+${deviceSpecsContext}
 
 Analyze this device's CPU power, GPU power, screen refresh rate, touch response, and gaming performance.
 Then, generate the optimal Free Fire sensitivity settings and recommendations in JSON format exactly as follows:
@@ -82,6 +97,7 @@ Respond ONLY with valid JSON. Do not include any markdown formatting like \`\`\`
 
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -96,7 +112,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }
 

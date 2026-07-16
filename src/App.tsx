@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import DeviceForm from './components/DeviceForm';
 import ResultDisplay from './components/ResultDisplay';
-import { AnalysisResult } from './types';
+import { AnalysisResult, DeviceSpec } from './types';
 import { Crosshair, AlertCircle } from 'lucide-react';
 
 export default function App() {
@@ -13,7 +13,7 @@ export default function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleAnalyze = async (data: { deviceType: string; deviceName: string; ram: string }) => {
+  const handleAnalyze = async (data: { deviceType: string; deviceName: string; ram: string; deviceSpec?: DeviceSpec }) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
