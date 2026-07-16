@@ -1,23 +1,27 @@
 export interface DeviceSpec {
+  id: string;
   brand: string;
   model: string;
+  aliases: string[];
+  languages_names: Record<string, string>;
+  release_date: string;
   category: string;
-  release_year: number;
   operating_system: string;
-  ram_variants: number[];
-  storage_variants: number[];
-  processor: string;
+  cpu: string;
   cpu_cores: number;
   cpu_frequency: string;
   gpu: string;
-  display_size: number;
+  ram_options: number[];
+  storage_options: number[];
+  display_size: string;
   resolution: string;
   refresh_rate: number;
   touch_sampling_rate: number;
   battery_capacity: number;
-  charging_speed: number;
+  charging_speed: string;
+  camera_info: string;
   performance_score: number;
-  gaming_rating: string;
+  gaming_score: number;
 }
 
 export interface AnalysisResult {
@@ -25,6 +29,7 @@ export interface AnalysisResult {
     cpu: string;
     gpu: string;
     performance: string;
+    category?: string;
   };
   sensitivity: {
     general: number;

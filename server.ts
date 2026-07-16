@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import Groq from 'groq-sdk';
 import dotenv from 'dotenv';
 
@@ -9,6 +10,41 @@ const app = express();
 const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 app.use(express.json());
+
+// Load Device Database in memory
+let deviceDb: any[] = [];
+try {
+  const dbPath = path.resolve(process.cwd(), 'src/data/devices.json');
+  if (fs.existsSync(dbPath)) {
+    const data = fs.readFileSync(dbPath, 'utf-8');
+    deviceDb = JSON.parse(data);
+    console.log(`Loaded ${deviceDb.length} devices into memory.`);
+  }
+} catch (err) {
+  console.error('Failed to load device database:', err);
+}
+
+// Search Devices Endpoint
+app.get('/api/devices/search', (req, res) => {
+  try {
+    const query = req.query.q as string;
+    if (!query) return res.json([]);
+    const lowerQuery = query.toLowerCase();
+    
+    // Multi-language alias and name matching
+    const results = deviceDb.filter(device => {
+      const matchBrandModel = device.brand.toLowerCase().includes(lowerQuery) || device.model.toLowerCase().includes(lowerQuery) || `${device.brand} ${device.model}`.toLowerCase().includes(lowerQuery);
+      const matchAlias = device.aliases?.some((alias: string) => alias.toLowerCase().includes(lowerQuery));
+      const matchLangName = Object.values(device.languages_names || {}).some((name: any) => name.toLowerCase().includes(lowerQuery));
+      return matchBrandModel || matchAlias || matchLangName;
+    }).slice(0, 10); // Return top 10 matches for fast lookup
+    
+    res.json(results);
+  } catch (err) {
+    console.error('Device search error:', err);
+    res.status(500).json({ error: 'Search failed' });
+  }
+});
 
 app.post('/api/analyze', async (req, res) => {
   try {
@@ -28,12 +64,12 @@ app.post('/api/analyze', async (req, res) => {
     if (deviceSpec) {
       deviceSpecsContext = `
 The system has identified exact hardware specifications for this device from our database:
-- Processor: ${deviceSpec.processor} (${deviceSpec.cpu_cores} cores, ${deviceSpec.cpu_frequency})
+- CPU: ${deviceSpec.cpu} (${deviceSpec.cpu_cores} cores, ${deviceSpec.cpu_frequency})
 - GPU: ${deviceSpec.gpu}
-- Display: ${deviceSpec.display_size} inches, ${deviceSpec.resolution}
+- Display: ${deviceSpec.display_size}, ${deviceSpec.resolution}
 - Refresh Rate: ${deviceSpec.refresh_rate}Hz
 - Touch Sampling Rate: ${deviceSpec.touch_sampling_rate}Hz
-- Gaming Rating: ${deviceSpec.gaming_rating}
+- Gaming Score: ${deviceSpec.gaming_score}/100
 - Performance Score: ${deviceSpec.performance_score}/100
 
 Base your sensitivity and performance recommendations primarily on these verified specs.`;
@@ -46,22 +82,25 @@ Device Name: ${deviceName}
 RAM: ${ram}GB
 ${deviceSpecsContext}
 
-Analyze this device's CPU power, GPU power, screen refresh rate, touch response, and gaming performance.
-Then, generate the optimal Free Fire sensitivity settings and recommendations in JSON format exactly as follows:
+If exact hardware specifications are not provided above, use your knowledge of this device model (normalize the name if necessary) to estimate its specifications (CPU, GPU, Refresh Rate, Touch Sampling Rate).
+
+Analyze this device's performance based on its specs and categorize it as Low-end, Mid-range, High-end, or Gaming phone.
+Then, generate the optimal Free Fire sensitivity settings (note: the new Free Fire sensitivity range is 0 to 200) and recommendations in JSON format exactly as follows. NEVER claim guaranteed headshots.
 
 {
   "analysis": {
     "cpu": "Brief CPU analysis",
     "gpu": "Brief GPU analysis",
-    "performance": "Overall gaming performance rating out of 10"
+    "performance": "Overall gaming performance rating out of 10",
+    "category": "Low-end / Mid-range / High-end / Gaming phone"
   },
   "sensitivity": {
-    "general": 0-100,
-    "redDot": 0-100,
-    "scope2x": 0-100,
-    "scope4x": 0-100,
-    "sniperScope": 0-100,
-    "freeLook": 0-100
+    "general": 0-200,
+    "redDot": 0-200,
+    "scope2x": 0-200,
+    "scope4x": 0-200,
+    "sniperScope": 0-200,
+    "freeLook": 0-200
   },
   "recommendations": {
     "dpi": "Recommended DPI (e.g., 400, 600, 800, or Default)",

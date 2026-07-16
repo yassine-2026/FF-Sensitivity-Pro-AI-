@@ -30,12 +30,11 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
       <div className="text-gray-400 text-sm mb-1">{label}</div>
       <div className="text-3xl font-bold text-white text-glow flex items-end gap-1">
         {value}
-        <span className="text-sm font-normal text-cyan-400 mb-1">%</span>
       </div>
       <div className="w-full bg-gray-700 h-1.5 mt-3 rounded-full overflow-hidden">
         <motion.div 
           initial={{ width: 0 }}
-          animate={{ width: `${value}%` }}
+          animate={{ width: `${(value / 200) * 100}%` }}
           transition={{ duration: 1, delay: 0.5 + (index * 0.1) }}
           className="bg-gradient-to-r from-cyan-400 to-blue-500 h-full rounded-full"
         />
@@ -116,9 +115,19 @@ export default function ResultDisplay({ result }: ResultDisplayProps) {
               <div className="text-gray-400 text-sm mb-1">{t('gpuPower')}</div>
               <div className="text-gray-200 bg-gray-800/30 p-3 rounded-xl text-sm leading-relaxed">{result.analysis.gpu}</div>
             </div>
-            <div className="mt-auto pt-4">
-               <div className="text-gray-400 text-sm mb-1">{t('overallRating')}</div>
-               <div className="text-2xl font-bold text-blue-400">{result.analysis.performance}</div>
+            <div className="mt-auto pt-4 flex justify-between items-end">
+               <div>
+                 <div className="text-gray-400 text-sm mb-1">{t('overallRating')}</div>
+                 <div className="text-2xl font-bold text-blue-400">{result.analysis.performance}</div>
+               </div>
+               {result.analysis.category && (
+                 <div className="text-right">
+                   <div className="text-gray-400 text-sm mb-1">Category</div>
+                   <div className="font-semibold text-cyan-300 bg-cyan-900/30 px-3 py-1 rounded-lg border border-cyan-500/20">
+                     {result.analysis.category}
+                   </div>
+                 </div>
+               )}
             </div>
           </div>
         </motion.div>

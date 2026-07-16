@@ -170,7 +170,7 @@ export default function DeviceForm({ onAnalyze, isLoading }: DeviceFormProps) {
                         {device.brand} {device.model}
                       </div>
                       <div className="text-xs text-gray-400">
-                        {device.processor} • {device.refresh_rate}Hz • {device.category}
+                        {device.cpu} • {device.refresh_rate}Hz • {device.category}
                       </div>
                     </div>
                     <div className="text-xs font-mono bg-cyan-900/30 text-cyan-300 px-2 py-1 rounded">
@@ -182,6 +182,24 @@ export default function DeviceForm({ onAnalyze, isLoading }: DeviceFormProps) {
             )}
           </AnimatePresence>
         </div>
+
+        {selectedSpec && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: 'auto' }} 
+            className="bg-gray-800/50 p-4 rounded-xl border border-cyan-500/20"
+          >
+            <div className="text-sm font-semibold text-cyan-400 mb-2">Device Information</div>
+            <div className="grid grid-cols-2 gap-2 text-xs text-gray-300">
+              <div><span className="text-gray-500">Processor:</span> {selectedSpec.cpu}</div>
+              <div><span className="text-gray-500">GPU:</span> {selectedSpec.gpu}</div>
+              <div><span className="text-gray-500">Refresh Rate:</span> {selectedSpec.refresh_rate}Hz</div>
+              <div><span className="text-gray-500">Touch Sampling:</span> {selectedSpec.touch_sampling_rate}Hz</div>
+              <div><span className="text-gray-500">Display:</span> {selectedSpec.resolution} ({selectedSpec.display_size})</div>
+              <div><span className="text-gray-500">Category:</span> {selectedSpec.category}</div>
+            </div>
+          </motion.div>
+        )}
 
         <div className="space-y-3">
           <label htmlFor="ram" className="block text-sm font-medium text-gray-300">
