@@ -81,7 +81,7 @@ Respond ONLY with valid JSON. Do not include any markdown formatting like \`\`\`
           content: prompt,
         },
       ],
-      model: 'llama3-70b-8192',
+      model: 'llama-3.3-70b-versatile',
       temperature: 0.2,
       response_format: { type: 'json_object' }
     });
@@ -106,7 +106,11 @@ Respond ONLY with valid JSON. Do not include any markdown formatting like \`\`\`
     if (error?.name === 'APITimeoutError') {
       return res.status(504).json({ error: 'Request to AI provider timed out. Please try again.' });
     }
-    res.status(500).json({ error: 'Failed to analyze device. Please try again later.' });
+    if (error?.status === 401) {
+      return res.status(401).json({ error: 'Invalid API Key provided for AI provider.' });
+    }
+    const errorMessage = error?.message || 'Failed to analyze device. Please try again later.';
+    res.status(500).json({ error: errorMessage });
   }
 });
 

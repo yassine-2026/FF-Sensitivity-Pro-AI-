@@ -18,7 +18,7 @@ export async function searchDevices(query: string): Promise<DeviceSpec[]> {
   return devices.filter(device => 
     device.brand.toLowerCase().includes(lowerQuery) || 
     device.model.toLowerCase().includes(lowerQuery) ||
-    `\${device.brand} \${device.model}`.toLowerCase().includes(lowerQuery)
+    `${device.brand} ${device.model}`.toLowerCase().includes(lowerQuery)
   );
 }
 
@@ -28,6 +28,6 @@ export async function getDeviceModel(modelName: string): Promise<DeviceSpec | nu
   
   return devices.find(device => 
     device.model.toLowerCase() === lowerModelName ||
-    `\${device.brand} \${device.model}`.toLowerCase() === lowerModelName
+    `${device.brand} ${device.model}`.toLowerCase() === lowerModelName
   ) || null;
 }

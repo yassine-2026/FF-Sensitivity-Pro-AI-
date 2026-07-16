@@ -47,7 +47,7 @@ export default function DeviceForm({ onAnalyze, isLoading }: DeviceFormProps) {
   }, [deviceName, selectedSpec]);
 
   const handleSelectDevice = (device: DeviceSpec) => {
-    setDeviceName(`\${device.brand} \${device.model}`);
+    setDeviceName(`${device.brand} ${device.model}`);
     setSelectedSpec(device);
     setShowDropdown(false);
     
@@ -111,7 +111,7 @@ export default function DeviceForm({ onAnalyze, isLoading }: DeviceFormProps) {
                   key={type}
                   type="button"
                   onClick={() => setDeviceType(valType)}
-                  className={`py-3 px-2 md:px-4 rounded-xl border font-medium text-xs md:text-sm transition-all flex justify-center items-center gap-1.5 md:gap-2 \${
+                  className={`py-3 px-2 md:px-4 rounded-xl border font-medium text-xs md:text-sm transition-all flex justify-center items-center gap-1.5 md:gap-2 ${
                     deviceType === valType
                       ? 'bg-cyan-500/20 border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
                       : 'glass-input hover:border-gray-400'

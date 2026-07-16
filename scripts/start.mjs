@@ -30,5 +30,12 @@ const child = spawn('node', [target], {
 });
 
 child.on('close', (code) => {
-  process.exit(code);
+  process.exit(code || 0);
+});
+
+process.on('SIGTERM', () => {
+  child.kill('SIGTERM');
+});
+process.on('SIGINT', () => {
+  child.kill('SIGINT');
 });
